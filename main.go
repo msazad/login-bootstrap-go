@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/http/cookiejar"
+
 	"github.com/google/uuid"
 )
 
@@ -33,6 +35,7 @@ func main() {
 	fmt.Println("Server is running in port :8080")
 	http.HandleFunc("/", loginHandler)
 }
+//loginHandler function
 func loginHandler(w http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie("session")
 	if err == nil {
@@ -58,6 +61,17 @@ func loginHandler(w http.ResponseWriter, req *http.Request) {
 		//if Password matches
 		if pass==dbUsers[uname].Password{
 			//Create Cookie
+			uid:=uuid.NewString()
+			cookie=&http.Cookie{
+				Name: "session",
+				Value: uid,
+			}
+			http.SetCookie(w,cookie)
+			dbSessions[cookie.Value]=uname
+			http.Redirect(w,req,"/home",http.StatusSeeOther)
 		}
 	}
+	tmpl.ExecuteTemplate(w,"login.html",errorval)
 }
+
+//signupHandler function
