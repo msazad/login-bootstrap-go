@@ -73,8 +73,8 @@ func loginHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	tmpl.ExecuteTemplate(w,"login.html",errorval)
 }
+// signupHandler function
 
-//signupHandler function
 func signupHandler(w http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie("session")
 
@@ -124,3 +124,39 @@ func signupHandler(w http.ResponseWriter, req *http.Request) {
 	tmpl.ExecuteTemplate(w, "signup.html", errorval)
 }
 
+// homeHandler function
+
+func homeHandler(w http.ResponseWriter, req *http.Request) {
+
+	cookie, err := req.Cookie("session")
+	if err != nil {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
+	}
+	if _, ok := dbSessions[cookie.Value]; !ok {
+		http.Redirect(w, req, "/", http.StatusSeeOther)
+		return
+	}
+
+	var un string
+	var usr user
+	un = dbSessions[cookie.Value]
+	usr = dbUsers[un]
+	tmpl.ExecuteTemplate(w, "home.html", usr)
+}
+
+// logoutHandler function
+
+func logoutHandler(w http.ResponseWriter, req *http.Request) {
+	cookie, err := req.Cookie("session")
+	if err != nil {
+		http.Redirect(w, req, "/login", http.StatusSeeOther)
+		return
+	}
+
+	cookie.MaxAge = -1
+
+	dbSessions[cookie.Value] = ""
+	http.SetCookie(w, cookie)
+	http.Redirect(w, req, "/login", http.StatusSeeOther)
+}
