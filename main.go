@@ -75,3 +75,51 @@ func loginHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 //signupHandler function
+func signupHandler(w http.ResponseWriter, req *http.Request) {
+	cookie, err := req.Cookie("session")
+
+	if err == nil {
+		if _, ok := dbSessions[cookie.Value]; ok {
+			http.Redirect(w, req, "/home", http.StatusSeeOther)
+		}
+	}
+	// Form submission
+	if req.Method == http.MethodPost {
+
+			/// receiving values from form
+		name := req.FormValue("name")
+		uname := req.FormValue("username")
+		pass := req.FormValue("password")
+
+		if name == "" || uname == "" || pass == "" {
+
+			errorval.FullError = "complete the form"
+			http.Redirect(w, req, "/signup", http.StatusSeeOther)
+			return
+		}
+		// chech username already taken
+		if _, ok := dbUsers[uname]; ok {
+			errorval.UserError = "username already taken"
+			http.Redirect(w, req, "/", http.StatusSeeOther)
+			return
+		}
+
+		// adding userinfo to dbUsers
+		dbUsers[uname] = user{name, uname, pass}
+
+		// Create Cookie
+		uid := uuid.NewString()
+		cookie = &http.Cookie{
+			Name:  "session",
+			Value: uid,
+		}
+		http.SetCookie(w, cookie)
+
+		dbSessions[cookie.Value] = uname
+
+		http.Redirect(w, req, "/home", http.StatusSeeOther)
+		return
+	}
+
+	tmpl.ExecuteTemplate(w, "signup.html", errorval)
+}
