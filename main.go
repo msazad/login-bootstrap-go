@@ -123,3 +123,4 @@ func signupHandler(w http.ResponseWriter, req *http.Request) {
 
 	tmpl.ExecuteTemplate(w, "signup.html", errorval)
 }
+
