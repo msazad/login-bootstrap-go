@@ -118,7 +118,7 @@ func signupHandler(w http.ResponseWriter, req *http.Request) {
 			http.Redirect(w, req, "/home", http.StatusSeeOther)
 			return
 	}
-	tmpl.ExecuteTemplate(w,"signup",errorval)
+	tmpl.ExecuteTemplate(w,"signup.html",errorval)
 }
 
 //homeHandler function
